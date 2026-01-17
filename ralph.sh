@@ -60,7 +60,24 @@ for i in $(seq 1 $MAX_ITERATIONS); do
   echo "═══════════════════════════════════════════════════════"
   
   # Run claude with the ralph prompt (non-interactive mode)
-  OUTPUT=$(cat "$SCRIPT_DIR/prompt.md" | claude -p --allow-dangerously-skip-permissions 2>&1 | tee /dev/stderr) || true  
+  echo "[DEBUG] Starting claude CLI at $(date)"
+  echo "[DEBUG] Prompt file: $SCRIPT_DIR/prompt.md"
+  echo "[DEBUG] Working directory: $(pwd)"
+  echo "[DEBUG] Command: cd $SCRIPT_DIR && claude -p --allow-dangerously-skip-permissions < prompt.md"
+  echo "[DEBUG] Prompt size: $(wc -c < "$SCRIPT_DIR/prompt.md") bytes"
+  echo "---"
+
+  # Use timeout to prevent infinite hangs, pass prompt via stdin
+  OUTPUT=$(cd "$SCRIPT_DIR" && timeout 600 claude -p --allow-dangerously-skip-permissions < "prompt.md" 2>&1) || {
+    EXIT_CODE=$?
+    echo "[ERROR] Command failed with output:"
+    echo "$OUTPUT"
+    if [ $EXIT_CODE -eq 124 ]; then
+      echo "[DEBUG] Claude command timed out after 600 seconds"
+    else
+      echo "[DEBUG] Claude command failed with exit code: $EXIT_CODE"
+    fi
+  }
   # Check for completion signal
   if echo "$OUTPUT" | grep -q "<promise>COMPLETE</promise>"; then
     echo ""
