@@ -1,43 +1,41 @@
-# Ralph Agent Instructions
+# SpecKit Agent Instructions
 
 ## Overview
 
-Ralph is an autonomous AI agent loop that runs Amp repeatedly until all PRD items are complete. Each iteration is a fresh Amp instance with clean context.
+SpecKit is an agentic framework for specifying, planning, and implementing software features. It replaces the legacy manual PRD process with a structured, autonomous pipeline.
+
+## Core Workflow
+
+1.  **Initialize**: `/.specify/scripts/bash/create-new-feature.sh "Feature Description"`
+2.  **Specify**: Agent runs `/speckit.specify` to generate `spec.md`.
+3.  **Clarify**: Agent runs `/speckit.clarify` to resolve ambiguities.
+4.  **Plan**: Agent runs `/speckit.plan` to create `plan.md`.
+5.  **Tasks**: Agent runs `/speckit.tasks` to generate `tasks.md`.
+6.  **Implement**: Agent runs `/speckit.implement` to execute tasks.
+
+## Key Files & Directories
+
+- `.specify/memory/constitution.md`: Core project rules and principles.
+- `specs/[branch-name]/`: Directory containing all artifacts for a feature.
+  - `spec.md`: The requirements.
+  - `plan.md`: The technical plan.
+  - `tasks.md`: The execution tasks.
+  - `checklists/`: Quality assurance checklists.
 
 ## Commands
 
-```bash
-# Run the flowchart dev server
-cd flowchart && npm run dev
+The agent operates by executing specific slash commands defined in `.claude/commands/`:
 
-# Build the flowchart
-cd flowchart && npm run build
+- `/speckit.constitution`: Update project principles.
+- `/speckit.specify`: Create/update requirements.
+- `/speckit.clarify`: Interactive ambiguity resolution.
+- `/speckit.plan`: Generate technical architecture.
+- `/speckit.tasks`: Break plan into executable tasks.
+- `/speckit.implement`: Execute the code changes.
+- `/speckit.analyze`: consistency check.
 
-# Run Ralph (from your project that has prd.json)
-./ralph.sh [max_iterations]
-```
+## Operational Guide
 
-## Key Files
-
-- `ralph.sh` - The bash loop that spawns fresh Amp instances
-- `prompt.md` - Instructions given to each Amp instance
-- `prd.json.example` - Example PRD format
-- `flowchart/` - Interactive React Flow diagram explaining how Ralph works
-
-## Flowchart
-
-The `flowchart/` directory contains an interactive visualization built with React Flow. It's designed for presentations - click through to reveal each step with animations.
-
-To run locally:
-```bash
-cd flowchart
-npm install
-npm run dev
-```
-
-## Patterns
-
-- Each iteration spawns a fresh Amp instance with clean context
-- Memory persists via git history, `progress.txt`, and `prd.json`
-- Stories should be small enough to complete in one context window
-- Always update AGENTS.md with discovered patterns for future iterations
+- **Always** check the `.specify/scripts/bash/check-prerequisites.sh` status before starting.
+- **Always** update `AGENTS.md` with new patterns found during implementation.
+- **Never** modify `spec.md` or `plan.md` manually during implementation unless a critical error is found (use `/speckit.clarify` or update process).
